@@ -20,7 +20,21 @@ def read_cities(filepath):
   cities = np.loadtxt(filepath, delimiter=',')
   return cities 
 
-def brute_force_tsm(cities):
+def score(cities,path):
+  """
+  Calc total distance of the path (circuit)
+  returns float
+  """
+
+  dist = 0.0
+
+  for i in range(len(path)):
+    prev = cities[path[i-1]] # this is ok bc we need a circuit so when i = 0, cities[-1] will get the last element
+    curr = cities[path[i]] 
+    dist += np.linalg.norm(prev - curr)
+  return dist
+  
+def brute_force_tsp(cities):
   """
   here is where we will brute force the solution
   """
@@ -31,9 +45,16 @@ def brute_force_tsm(cities):
   for p in permutations(indicies):
     p = [0] + list(p)   # remember, we start at city 0
     ##TODO: calc distance between the vector
+    dist =  score(cities,p)
+    if dist < shortest_distance:
+        shortest_distance = dist
+        best_path = p
+  return best_path,shortest_distance
+    
 
 if __name__ == '__main__':
     cities = read_cities('../test/tiny.csv')
-    brute_force_tsm(cities)
+    best_path, shortest_distance = brute_force_tsp(cities)
+    print(best_path,shortest_distance)
 
 
