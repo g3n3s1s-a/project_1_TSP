@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import csv
 from itertools import permutations
+import numpy as np
 
 
 def read_cities(filepath):
@@ -14,16 +14,11 @@ def read_cities(filepath):
   the data is formated as a city per line with x,y cords
 
   Returns:
-  cities list of lists [[x,y],[x,y]...]
+  cities np array with each city being cords (x,y)
 
   """
-
-  cities = []
-  with open(filepath, 'r') as file:
-    for line in file:
-      x, y = line.strip().split(',')
-      cities.append([float(x), float(y)])
-  return cities
+  cities = np.loadtxt(filepath, delimiter=',')
+  return cities 
 
 def brute_force_tsm(cities):
   """
@@ -32,7 +27,7 @@ def brute_force_tsm(cities):
   # init out variables
   best_path =  None # 
   shortest_distance = float("inf")
-  indicies = list(range(1,len(cities)))  # starting at city 0
+  indicies = np.arange(1, len(cities))  # we'll force starting at city 0
   for p in permutations(indicies):
     p = [0] + list(p)   # remember, we start at city 0
     ##TODO: calc distance between the vector
