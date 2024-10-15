@@ -66,6 +66,7 @@ def test_and_time(dataset_paths, time_limit=60):
             print(f'Dataset: {data}, Time: {elapsed_time / 60:.2f} minutes, Vertices: {num_vertices}')
 
     return vertices, times, timeouts, estimated_times
+
 def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit):
     """
     Plots the number of vertices against the computation time.
@@ -73,13 +74,24 @@ def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit
     """
     plt.figure(figsize=(10, 6))
 
+    # Initialize flags to track if the labels have been used
+    estimated_time_label_used = False
+    completed_label_used = False
+
     # Plot normal points where no timeout occurred
     for i in range(len(vertices)):
         if timeouts[i]:
-            plt.scatter(vertices[i], time_limit / 60, color='red', label=f'Timeout after {time_limit / 60:.2f} minutes' if i == 0 else "")
-            plt.scatter(vertices[i], estimated_times[i], color='red', marker='x', s=100, label=f'Estimated Time' if i == 0 else "")
+            if not estimated_time_label_used:
+                plt.scatter(vertices[i], estimated_times[i], color='red', marker='x', s=100, label='Estimated Time')
+                estimated_time_label_used = True
+            else:
+                plt.scatter(vertices[i], estimated_times[i], color='red', marker='x', s=100)
         else:
-            plt.scatter(vertices[i], times[i], color='green', label='Completed' if i == 0 else "")
+            if not completed_label_used:
+                plt.scatter(vertices[i], times[i], color='green', label='Completed')
+                completed_label_used = True
+            else:
+                plt.scatter(vertices[i], times[i], color='green')
 
     plt.plot(vertices, times, linestyle='-', color='blue', label='Computation Time')
 
@@ -98,16 +110,16 @@ def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit
     plt.tight_layout()
     plt.savefig('time_vs_vertices_plot_with_timeout_log.png')
 
-
 if __name__ == '__main__':
     # List of datasets to test
     dataset_paths = ['tiny.csv', 'small.csv', 'medium.csv']
 
     # Set a time limit for each dataset (e.g., 60 seconds)
-    time_limit = 60# in seconds
+    time_limit = 60  # in seconds
 
     # Run the tests and time them
     vertices, times, timeouts, estimated_times = test_and_time(dataset_paths, time_limit)
 
     # Plot the results with timeouts
     plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit)
+
