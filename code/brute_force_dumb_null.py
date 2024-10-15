@@ -38,7 +38,7 @@ def test_and_time(dataset_paths, time_limit=60):
     estimated_times = []
 
     for data in dataset_paths:
-        cities = read_cities(f'../test/{data}')
+        cities = read_cities(f'../data/{data}')
         num_vertices = len(cities)
 
         # Time the brute force TSP execution
@@ -77,6 +77,7 @@ def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit
     # Initialize flags to track if the labels have been used
     estimated_time_label_used = False
     completed_label_used = False
+    total_time = []
 
     # Plot normal points where no timeout occurred
     for i in range(len(vertices)):
@@ -86,6 +87,7 @@ def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit
                 estimated_time_label_used = True
             else:
                 plt.scatter(vertices[i], estimated_times[i], color='red', marker='x', s=100)
+            total_time.append(estimated_times[i])
         else:
             if not completed_label_used:
                 plt.scatter(vertices[i], times[i], color='green', label='Completed')
@@ -93,7 +95,9 @@ def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit
             else:
                 plt.scatter(vertices[i], times[i], color='green')
 
-    plt.plot(vertices, times, linestyle='-', color='blue', label='Computation Time')
+            total_time.append(times[i])
+
+    plt.plot(vertices,total_time, linestyle='-', color='blue', label='Computation Time')
 
     # Add horizontal line for timeout
     plt.axhline(y=time_limit / 60, color='red', linestyle='dotted', label=f'Timeout Limit ({time_limit / 60:.2f} minutes)')
@@ -101,25 +105,24 @@ def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit
     plt.xlabel('Number of Vertices')
     plt.ylabel('Computation Time (minutes)')
     plt.title(f'TSP Brute Force: Time vs Number of Vertices (Timeout={time_limit / 60:.2f} minutes)')
-    plt.yscale('log')  # Logarithmic scale for y-axis
+    #plt.yscale('log')  # Logarithmic scale for y-axis
     plt.grid(True, which='both')  # Grid for both major and minor ticks
     plt.legend()
     plt.xticks(vertices)
 
     # Save and show the plot
     plt.tight_layout()
-    plt.savefig('time_vs_vertices_plot_with_timeout_log.png')
+    plt.savefig('brute_force_plot.png')
 
 if __name__ == '__main__':
     # List of datasets to test
-    dataset_paths = ['tiny.csv', 'small.csv', 'medium.csv']
+    dataset_paths = ['10_tiny.csv', '15_small.csv', '30_small.csv', '40_small.csv', '50_medium.csv','69_medium.csv','100_medium.csv','120_large.csv'] 
 
     # Set a time limit for each dataset (e.g., 60 seconds)
-    time_limit = 60  # in seconds
+    time_limit = 15  # in seconds
 
     # Run the tests and time them
     vertices, times, timeouts, estimated_times = test_and_time(dataset_paths, time_limit)
 
     # Plot the results with timeouts
     plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit)
-
