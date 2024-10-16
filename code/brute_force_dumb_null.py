@@ -116,7 +116,7 @@ def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit
 
 if __name__ == '__main__':
     # List of datasets to test
-    dataset_paths = ['10_tiny.csv', '15_small.csv', '30_small.csv', '40_small.csv', '50_medium.csv','69_medium.csv','100_medium.csv','120_large.csv'] 
+    dataset_paths = ['10_tiny_null.csv', '15_small_null.csv', '30_small_null.csv', '40_small_null.csv', '50_medium_null.csv','69_medium_null.csv','100_medium_null.csv','120_large_null.csv'] 
 
     # Set a time limit for each dataset (e.g., 60 seconds)
     time_limit = 15  # in seconds

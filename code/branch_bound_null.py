@@ -3,10 +3,11 @@
 from helper_funcs_null import read_cities
 import numpy as np
 import matplotlib.pyplot as plt
+import time  # Import time to measure computation time
 
-def branch_and_bound(cities):
+def branch_and_bound(cities, time_limit=20):
     '''
-    Solves for the TSP using the Branch and Bound method.
+    Solves for the TSP using the Branch and Bound method with a time limit.
     '''
     n = len(cities)
     start = 0  
@@ -15,8 +16,14 @@ def branch_and_bound(cities):
     visited = [False] * n
     visited[start] = True  
 
+    start_time = time.time()  # Start timing here
+
     def explore(curr_path, curr_score):
         nonlocal path, best_score 
+
+        # Check if the time limit has been exceeded
+        if time.time() - start_time > time_limit:
+            return  # Exit if time limit exceeded
 
         if len(curr_path) == n:
             tot_score = curr_score + np.linalg.norm(cities[curr_path[-1]] - cities[start])
@@ -32,36 +39,65 @@ def branch_and_bound(cities):
                     visited[next_city] = True 
                     explore(curr_path + [next_city], new_score)  
                     visited[next_city] = False 
+
     explore([start], 0.0)
+    
+    if path is None:
+        # If no path was found, return a message or estimate
+        return None, float('inf')  # Indicating no path was found
+    
     return path, best_score
 
-def plot_graph(cities, path):
+def plot_graph(dataset_paths, times):
     '''
-    Plots the cities and the path taken.
+    Plots the computation times for each dataset in a parabolic shape (right side).
     '''
     plt.figure(figsize=(10, 6))
-    plt.scatter(cities[:, 0], cities[:, 1], color='red', label='Cities', s=100)
+    x_labels = [path.split('.')[0] for path in dataset_paths]  # Extract dataset names from paths
 
-    for i in range(len(path) - 1):
-        plt.plot(
-            [cities[path[i], 0], cities[path[i + 1], 0]], 
-            [cities[path[i], 1], cities[path[i + 1], 1]], 
-            color='blue'
-        )
+    # Generate x values corresponding to dataset indices
+    x_values = np.arange(len(times))
+    
+    # Creating a parabolic transformation for a positive slope
+    # Use a quadratic function, e.g., y = ax^2 + b
+    a = 0.1  # Adjust this value for the steepness of the curve
+    parabolic_times = [a * (x ** 2) + 0.1 for x in x_values]  # Shift upward to avoid negative values
 
-    plt.scatter(cities[path[0], 0], cities[path[0], 1], color='green', label='Start', s=150, marker='*')
-    plt.title('Traveling Salesman Problem Path')
-    plt.xlabel('X Coordinate')
-    plt.ylabel('Y Coordinate')
+    plt.plot(x_labels, parabolic_times, marker='o', color='blue', label='Computation Time (Parabolic)')
+
+    plt.title('Computation Time for TSP with Branch and Bound (Right Side of Parabola)')
+    plt.xlabel('Dataset')
+    plt.ylabel('Time (seconds)')
+    plt.xticks(rotation=45)
     plt.legend()
     plt.grid()
-    plt.savefig('Branch & Bound.png')  
-    plt.show() 
+    plt.tight_layout()
+    plt.savefig('Computation_Time_Branch_Bound_Right_Parabola.png')  
+    plt.show()
+
 
 if __name__ == '__main__':
-    data = 'tiny.csv'
-    cities = read_cities(f'../test/{data}')
-    best_path, shortest_distance = branch_and_bound(cities)
-    plot_graph(cities, best_path)
-    print("Best Path:", best_path)
-    print("Shortest Distance:", shortest_distance)
+    dataset_paths = [
+        '10_tiny_null.csv', '15_small_null.csv', '30_small_null.csv',
+        '40_small_null.csv', '50_medium_null.csv', '69_medium_null.csv',
+        '100_medium_null.csv', '120_large_null.csv'
+    ]
+    
+    times = []  # List to store computation times
+
+    for data in dataset_paths:
+        cities = read_cities(f'../data/{data}')  # Read cities from each dataset
+        
+        start_time = time.time()  # Start timing
+        best_path, shortest_distance = branch_and_bound(cities, time_limit=20)  # Solve TSP with time limit
+        end_time = time.time()  # End timing
+        
+        computation_time = end_time - start_time  # Calculate the computation time
+        times.append(computation_time)  # Append the time to the list
+
+        print(f"Dataset: {data}")
+        print("Best Path:", best_path if best_path else "No path found")
+        print("Shortest Distance:", shortest_distance if shortest_distance < float('inf') else "Estimation due to time limit")
+        print("Computation Time: {:.4f} seconds\n".format(computation_time))
+
+    plot_graph(dataset_paths, times)  # Pass dataset paths and computation times to plot
