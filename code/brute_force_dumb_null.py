@@ -105,7 +105,7 @@ def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit
     plt.xlabel('Number of Vertices')
     plt.ylabel('Computation Time (minutes)')
     plt.title(f'TSP Brute Force: Time vs Number of Vertices (Timeout={time_limit / 60:.2f} minutes)')
-    #plt.yscale('log')  # Logarithmic scale for y-axis
+    plt.yscale('log')  # Logarithmic scale for y-axis
     plt.grid(True, which='both')  # Grid for both major and minor ticks
     plt.legend()
     plt.xticks(vertices)
