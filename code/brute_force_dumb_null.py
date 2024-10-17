@@ -28,39 +28,46 @@ def brute_force(nodes, time_limit):
 
     return best_path, shortest_distance, False  # No timeout
 
-def graph(cities,best_path,shortest_distance,data,algo,start=0):
-    order = np.array(best_path) # this are the indicies of the cities
+def graph(cities, best_path, shortest_distance, data, algo, start=0):
+    order = np.array(best_path)  # These are the indices of the cities
 
     # Reorder points based on the specified order
     ordered_points = cities[order]
-    
+
     # Add the starting city to the end to complete the circuit
     ordered_points = np.vstack([ordered_points, ordered_points[start]])
-    x = ordered_points[:,0]
-    y = ordered_points[:,1]
-    
+
+    x = ordered_points[:, 0]
+    y = ordered_points[:, 1]
+
     # Create the plot
-    plt.plot(x, y, marker='o', linestyle='-', color='blue', label='Ordered Path')
+    plt.figure(figsize=(8, 6))
+
+    # Plot the path with markers and arrows for clarity
+    plt.plot(x, y, marker='o', markersize=8, color='blue', linestyle='-', label=f'Total Distance: {round(shortest_distance, 2)}')
+
+    # Add direction arrows
+    for i in range(len(x) - 1):
+        plt.annotate('', xy=(x[i + 1], y[i + 1]), xytext=(x[i], y[i]),
+                     arrowprops=dict(facecolor='black', arrowstyle='->'))
+
+    # Add city labels
+    for i, (x_coord, y_coord) in enumerate(zip(x, y)):
+        plt.text(x_coord, y_coord, f'{i}', fontsize=12, ha='right')
+
     # Add labels and title
-    #Create the plot
-    plt.plot(x, y, marker='o', linestyle='-', color='blue', label=f'Total Distance : {round(shortest_distance,2)}')
-    #Add labels and title
     plt.xlabel('X axis')
     plt.ylabel('Y axis')
-    plt.title('Plot of Points in Custom Order')
-    plt.title(f'{algo} : {data} path')
+    plt.title(f'{algo}: {data} Path')
     plt.legend()
 
     # Save the plot to a file
-    plt.savefig('custom_order_plot.png')
-    
-    name,_ = data.split('.')
-    plt.savefig(f'{algo}_{name}_plot.png')
+    name, _ = data.split('.')
+    plt.savefig(f'{algo}_{name}_matplotlib.png')
 
-def test_and_time(dataset_paths, time_limit=60):
-    """
-    Tests multiple datasets, times each run with a timeout.
-    """
+    # Show the plot for debugging purposes
+    #plt.show()
+def test_and_time(dataset_paths, time_limit=15000):  # time_limit in milliseconds
     times = []
     vertices = []
     timeouts = []
@@ -71,45 +78,42 @@ def test_and_time(dataset_paths, time_limit=60):
         num_vertices = len(cities)
 
         # Time the brute force TSP execution
-        start_time = time.time()
-        best_path, shortest_distance, timeout = brute_force(cities, time_limit)
-        elapsed_time = time.time() - start_time
+        start_time = time.time() * 1000  # Start time in milliseconds
+        best_path, shortest_distance, timeout = brute_force(cities, time_limit/1000)
+        elapsed_time = (time.time() * 1000) - start_time  # Elapsed time in milliseconds
 
         # Estimate the time for timeout cases
         if timeout:
             num_permutations = math.factorial(num_vertices - 1)
             estimated_time = time_limit / (elapsed_time / num_permutations)
-            estimated_times.append(estimated_time / 60)  # Convert to minutes
+            estimated_times.append(estimated_time)  # Keep in milliseconds
         else:
-            estimated_times.append(elapsed_time / 60)  # Convert to minutes
-            graph(cities,best_path,shortest_distance,data,'brute_force')
+            estimated_times.append(elapsed_time)  # Keep in milliseconds
+            graph(cities, best_path, shortest_distance, data, 'brute_force')
 
         # Store the results
-        times.append(elapsed_time / 60)  # Convert to minutes
+        times.append(elapsed_time)  # Keep in milliseconds
         vertices.append(num_vertices)
         timeouts.append(timeout)
 
-        # Indicate if timeout occurred
         if timeout:
-            print(f'Dataset: {data}, Timeout after {time_limit / 60:.2f} minutes, Vertices: {num_vertices}')
+            print(f'Dataset: {data}, Timeout after {time_limit / 1000 :.2f} seconds, Vertices: {num_vertices}')
         else:
-            print(f'Dataset: {data}, Time: {elapsed_time / 60:.2f} minutes, Vertices: {num_vertices}')
+            print(f'Dataset: {data}, Time: {elapsed_time:.2f} milliseconds, Vertices: {num_vertices}')
 
     return vertices, times, timeouts, estimated_times
 
-def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit):
+def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit=15000):
     """
-    Plots the number of vertices against the computation time.
+    Plots the number of vertices against the computation time in milliseconds.
     Indicate timeouts on the graph.
     """
     plt.figure(figsize=(10, 6))
 
-    # Initialize flags to track if the labels have been used
     estimated_time_label_used = False
     completed_label_used = False
     total_time = []
 
-    # Plot normal points where no timeout occurred
     for i in range(len(vertices)):
         if timeouts[i]:
             if not estimated_time_label_used:
@@ -127,32 +131,31 @@ def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit
 
             total_time.append(times[i])
 
-    plt.plot(vertices,total_time, linestyle='-', color='blue', label='Computation Time')
+    plt.plot(vertices, total_time, linestyle='-', color='blue', label='Computation Time')
 
-    # Add horizontal line for timeout
-    plt.axhline(y=time_limit / 60, color='red', linestyle='dotted', label=f'Timeout Limit ({time_limit / 60:.2f} minutes)')
+    # Add horizontal line for timeout (in milliseconds)
+    plt.axhline(y=time_limit, color='red', linestyle='dotted', label=f'Timeout Limit ({time_limit:.2f} milliseconds)')
 
     plt.xlabel('Number of Vertices')
-    plt.ylabel('Computation Time (minutes)')
-    plt.title(f'TSP Brute Force: Time vs Number of Vertices (Timeout={time_limit / 60:.2f} minutes)')
-    #plt.yscale('log')  # Logarithmic scale for y-axis
+    plt.ylabel('Computation Time (milliseconds)')
+    plt.title(f'TSP Brute Force: Time vs Number of Vertices (Timeout={time_limit :.2f} ms)')
     plt.grid(True, which='both')  # Grid for both major and minor ticks
     plt.legend()
     plt.xticks(vertices)
-
+ #   plt.ylim(None, 7000)
+    plt.yscale('log')
     # Save and show the plot
-    plt.tight_layout()
+ #   plt.tight_layout()
     plt.savefig('brute_force_plot.png')
+    plt.show()
 
 if __name__ == '__main__':
     # List of datasets to test
-    dataset_paths = ['3_tiny_null.csv','6_tiny_null.csv','7_tiny_null.csv','9_tiny_null.csv','10_tiny_null.csv']
+    dataset_paths = ['3_tiny_null.csv','5_tiny_null.csv','7_tiny_null.csv','10_tiny_null.csv','12_tiny_null.csv']
 
-    # Set a time limit for each dataset (e.g., 60 seconds)
-    time_limit = 30  # in seconds
 
     # Run the tests and time them
-    vertices, times, timeouts, estimated_times = test_and_time(dataset_paths, time_limit)
+    vertices, times, timeouts, estimated_times = test_and_time(dataset_paths)
 
     # Plot the results with timeouts
-    plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit)
+    plot_time_vs_vertices(vertices, times, timeouts, estimated_times)
