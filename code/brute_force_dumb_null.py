@@ -28,6 +28,35 @@ def brute_force(nodes, time_limit):
 
     return best_path, shortest_distance, False  # No timeout
 
+def graph(cities,best_path,shortest_distance,data,algo,start=0):
+    order = np.array(best_path) # this are the indicies of the cities
+
+    # Reorder points based on the specified order
+    ordered_points = cities[order]
+    
+    # Add the starting city to the end to complete the circuit
+    ordered_points = np.vstack([ordered_points, ordered_points[start]])
+    x = ordered_points[:,0]
+    y = ordered_points[:,1]
+    
+    # Create the plot
+    plt.plot(x, y, marker='o', linestyle='-', color='blue', label='Ordered Path')
+    # Add labels and title
+    #Create the plot
+    plt.plot(x, y, marker='o', linestyle='-', color='blue', label=f'Total Distance : {round(shortest_distance,2)}')
+    #Add labels and title
+    plt.xlabel('X axis')
+    plt.ylabel('Y axis')
+    plt.title('Plot of Points in Custom Order')
+    plt.title(f'{algo} : {data} path')
+    plt.legend()
+
+    # Save the plot to a file
+    plt.savefig('custom_order_plot.png')
+    
+    name,_ = data.split('.')
+    plt.savefig(f'{algo}_{name}_plot.png')
+
 def test_and_time(dataset_paths, time_limit=60):
     """
     Tests multiple datasets, times each run with a timeout.
@@ -53,6 +82,7 @@ def test_and_time(dataset_paths, time_limit=60):
             estimated_times.append(estimated_time / 60)  # Convert to minutes
         else:
             estimated_times.append(elapsed_time / 60)  # Convert to minutes
+            graph(cities,best_path,shortest_distance,data,'brute_force')
 
         # Store the results
         times.append(elapsed_time / 60)  # Convert to minutes
@@ -105,7 +135,7 @@ def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit
     plt.xlabel('Number of Vertices')
     plt.ylabel('Computation Time (minutes)')
     plt.title(f'TSP Brute Force: Time vs Number of Vertices (Timeout={time_limit / 60:.2f} minutes)')
-    plt.yscale('log')  # Logarithmic scale for y-axis
+    #plt.yscale('log')  # Logarithmic scale for y-axis
     plt.grid(True, which='both')  # Grid for both major and minor ticks
     plt.legend()
     plt.xticks(vertices)
@@ -116,10 +146,10 @@ def plot_time_vs_vertices(vertices, times, timeouts, estimated_times, time_limit
 
 if __name__ == '__main__':
     # List of datasets to test
-    dataset_paths = ['10_tiny_null.csv', '15_small_null.csv', '30_small_null.csv', '40_small_null.csv', '50_medium_null.csv','69_medium_null.csv','100_medium_null.csv','120_large_null.csv'] 
+    dataset_paths = ['3_tiny_null.csv','6_tiny_null.csv','7_tiny_null.csv','9_tiny_null.csv','10_tiny_null.csv']
 
     # Set a time limit for each dataset (e.g., 60 seconds)
-    time_limit = 15  # in seconds
+    time_limit = 30  # in seconds
 
     # Run the tests and time them
     vertices, times, timeouts, estimated_times = test_and_time(dataset_paths, time_limit)
