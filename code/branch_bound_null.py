@@ -65,23 +65,19 @@ def plot_graph(dataset_paths, times):
 
     plt.plot(x_labels, parabolic_times, marker='o', color='blue', label='Computation Time (Parabolic)')
 
-    plt.title('Computation Time for TSP with Branch and Bound (Right Side of Parabola)')
+    plt.title('Computation Time Branch and Bound ')
     plt.xlabel('Dataset')
     plt.ylabel('Time (seconds)')
     plt.xticks(rotation=45)
     plt.legend()
     plt.grid()
     plt.tight_layout()
-    plt.savefig('Computation_Time_Branch_Bound_Right_Parabola.png')  
+    plt.savefig('Computation_Time_Branch_Bound.png')  
     plt.show()
 
 
 if __name__ == '__main__':
-    dataset_paths = [
-        '10_tiny_null.csv', '15_small_null.csv', '30_small_null.csv',
-        '40_small_null.csv', '50_medium_null.csv', '69_medium_null.csv',
-        '100_medium_null.csv', '120_large_null.csv'
-    ]
+    dataset_paths = ['3_tiny_null.csv','5_tiny_null.csv','7_tiny_null.csv','10_tiny_null.csv','12_tiny_null.csv']
     
     times = []  # List to store computation times
 
