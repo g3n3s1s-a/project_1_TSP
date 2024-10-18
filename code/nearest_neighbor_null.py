@@ -66,8 +66,6 @@ def graph(cities, best_path, shortest_distance, data, start=0):
         plt.text(x_coord, y_coord, f'{i}', fontsize=12, ha='right')
 
     # Add labels and title
-    plt.xlabel('X axis')
-    plt.ylabel('Y axis')
     plt.title(f'nearest_neighbor: {data} Path')
     plt.legend()
 
@@ -75,12 +73,12 @@ def graph(cities, best_path, shortest_distance, data, start=0):
     name, _ = data.split('.')
     plt.savefig(f'../output/nearest_neighbor_{name}_matplotlib.png')
 
-def test_and_time(dataset_paths):
+def test_and_time(dataset_paths, vertices):
     times = []
     paths = []
     distances = []
 
-    for data in dataset_paths:
+    for data, vertex_count in zip(dataset_paths, vertices):
         cities = read_cities(f'../data/{data}')
         num_vertices = len(cities)
 
@@ -89,10 +87,11 @@ def test_and_time(dataset_paths):
 
         elapsed_time = time.time() - start_time
 
-        time_in_minutes = elapsed_time / 60
-        times.append(time_in_minutes)
+        times.append(elapsed_time)
         paths.append(path)
         distances.append(total_distance)
+
+        print(f"{data} has {vertex_count} vertices. Completed Greedy Nearest Neighbor Algorithm in {1000 * elapsed_time:.3f} miliseconds, resulting in a distance of {total_distance:.2f}")
 
     return times, distances, paths
 
@@ -102,12 +101,20 @@ def graph_all(dataset_paths, times, distances, paths):
         graph(cities, path, distance, dataset, start=0)
 
 if __name__ == '__main__':
+    vertices = [10, 30, 50, 100, 120]
     dataset_paths = ['10_tiny_null.csv', '30_small_null.csv', '50_medium_null.csv', '100_medium_null.csv','120_large_null.csv'] 
-    times, distances, paths = test_and_time(dataset_paths)
+    times, distances, paths = test_and_time(dataset_paths, vertices)
+
+    # graph the actual outputs
     graph_all(dataset_paths, times, distances, paths)
-    times = np.array(times)
-    vertices = np.array([10, 30, 50, 100, 120])
+
+    # graph the computation time vs the number of vertices
+    plt.figure(figsize=(8, 6))
+    vertices = np.array(vertices)
     plt.plot(vertices, times, marker='o')
-    plt.savefig('../graphs/nearest_neighbor_graph_null.png')
+    plt.title('Greedy/Nearest-Neighbor Algorithm: Computation Time vs Vertex Count for TSP')
+    plt.xlabel('vertex count')
+    plt.ylabel('computation time (seconds)')
+    plt.savefig('../graphs/nearest_neighbor_timeGraph_null.png')
     plt.show()
     print('done')
