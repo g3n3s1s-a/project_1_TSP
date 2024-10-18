@@ -38,6 +38,43 @@ def greedy(cities):
     return path, total_distance
 
 
+def graph(cities, best_path, shortest_distance, data, start=0):
+    order = np.array(best_path)  # These are the indices of the cities
+
+    # Reorder points based on the specified order
+    ordered_points = cities[order]
+
+    # Add the starting city to the end to complete the circuit
+    ordered_points = np.vstack([ordered_points, ordered_points[start]])
+
+    x = ordered_points[:, 0]
+    y = ordered_points[:, 1]
+
+    # Create the plot
+    plt.figure(figsize=(8, 6))
+
+    # Plot the path with markers and arrows for clarity
+    plt.plot(x, y, marker='o', markersize=8, color='blue', linestyle='-', label=f'Total Distance: {round(shortest_distance, 2)}')
+
+    # Add direction arrows
+    for i in range(len(x) - 1):
+        plt.annotate('', xy=(x[i + 1], y[i + 1]), xytext=(x[i], y[i]),
+                     arrowprops=dict(facecolor='black', arrowstyle='->'))
+
+    # Add city labels
+    for i, (x_coord, y_coord) in enumerate(zip(x, y)):
+        plt.text(x_coord, y_coord, f'{i}', fontsize=12, ha='right')
+
+    # Add labels and title
+    plt.xlabel('X axis')
+    plt.ylabel('Y axis')
+    plt.title(f'nearest_neighbor: {data} Path')
+    plt.legend()
+
+    # Save the plot to a file
+    name, _ = data.split('.')
+    plt.savefig(f'../output/nearest_neighbor_{name}_matplotlib.png')
+
 def test_and_time(dataset_paths):
     times = []
     paths = []
@@ -59,12 +96,18 @@ def test_and_time(dataset_paths):
 
     return times, distances, paths
 
+def graph_all(dataset_paths, times, distances, paths):
+    for dataset, time, distance, path in zip(dataset_paths, times, distances, paths):
+        cities = read_cities(f'../data/{dataset}')
+        graph(cities, path, distance, dataset, start=0)
+
 if __name__ == '__main__':
     dataset_paths = ['10_tiny_null.csv', '30_small_null.csv', '50_medium_null.csv', '100_medium_null.csv','120_large_null.csv'] 
     times, distances, paths = test_and_time(dataset_paths)
+    graph_all(dataset_paths, times, distances, paths)
     times = np.array(times)
     vertices = np.array([10, 30, 50, 100, 120])
     plt.plot(vertices, times, marker='o')
-    plt.savefig('../output/nearest_neighbor_graph_null.png')
+    plt.savefig('../graphs/nearest_neighbor_graph_null.png')
     plt.show()
     print('done')
