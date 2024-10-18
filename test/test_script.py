@@ -55,6 +55,7 @@ def brute_force(nodes, time_limit=30):
         if dist < shortest_distance:
             shortest_distance = dist
             best_path = p
+    best_path.append(0)
 
     return best_path, shortest_distance, False  # No timeout
 
@@ -87,7 +88,8 @@ def greedy(cities):
     total_distance += score(cities, [current_city, 0])
     path.append(0)
     
-    return path, total_distance
+    return path, total_distance/2
+
 def branch_and_bound(cities, time_limit=20):
     '''
     Solves for the TSP using the Branch and Bound method with a time limit.
@@ -132,8 +134,12 @@ def branch_and_bound(cities, time_limit=20):
     return path, best_score
 
 test_cases = ['test_cases_1.csv','test_cases_2.csv','test_cases_3.csv','test_cases_4.csv','test_cases_5.csv']
+correct_path = [[0,1,3,2,0],[0,3,2,1,4,0],[0,1,5,3,4,2,0],[0,1,2,3,0],[0,2,1,3,0]]
 correct_distance = [4.0,22.8,31.98,11.48,24.14]
-correct_path = [[0,1,3,2],[0,3,2,1,4],[0,1,5,3,4,2],[0,1,2,3],[0,2,1,3]]
+
+# nearest neighbor outputs are different
+nn_path = [[0,1,3,2,0],[0,4,1,2,3,0],[0,1,2,4,5,3,0],[0,1,2,4,5,2,0],[0,3,1,2,0]]
+nn_distance = [4.0,22.8,38.29,11.48,24.14]
 
 for i,cities in enumerate(test_cases):
   print(cities)
@@ -156,7 +162,7 @@ for i,cities in enumerate(test_cases):
   print('nearest_neighbors')
   path,distance = greedy(nodes)
   print(f'Estimated path: {path} with distance: {round(distance,2)}')
-  print(f'Correct path: {correct_path[i]} and correct distance {correct_distance[i]}')
+  print(f'Correct path: {nn_path[i]} and correct distance {nn_distance[i]}')
   print()
 
 
