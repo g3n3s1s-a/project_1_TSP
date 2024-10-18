@@ -132,6 +132,8 @@ def branch_and_bound(cities, time_limit=20):
     return path, best_score
 
 test_cases = ['test_cases_1.csv','test_cases_2.csv','test_cases_3.csv','test_cases_4.csv','test_cases_5.csv']
+correct_distance = [4.0,22.8,31.98,11.48,24.14]
+correct_path = [[0,1,3,2],[0,3,2,1,4],[0,1,5,3,4,2],[0,1,2,3],[0,2,1,3]]
 
 for i,cities in enumerate(test_cases):
   print(cities)
@@ -139,16 +141,23 @@ for i,cities in enumerate(test_cases):
   print('brute force test')
   nodes = read_cities(cities)
   path,distance,_ = brute_force(nodes)
-  print(f'Estimated path: {path} with distance: {distance}')
+
+  print(f'Estimated path: {path} with distance: {round(distance,2)}')
+  print(f'Correct path: {correct_path[i]} and correct distance {correct_distance[i]}')
   print()
+
+
   print('branch and bound')
   path,distance = branch_and_bound(nodes)
-  print(f'Estimated path: {path} with distance: {distance}')
+  print(f'Estimated path: {path} with distance: {round(distance,2)}')
+  print(f'Correct path: {correct_path[i]} and correct distance {correct_distance[i]}')
   print()
 
-
-
-
+  print('nearest_neighbors')
+  path,distance = greedy(nodes)
+  print(f'Estimated path: {path} with distance: {round(distance,2)}')
+  print(f'Correct path: {correct_path[i]} and correct distance {correct_distance[i]}')
+  print()
 
 
 
