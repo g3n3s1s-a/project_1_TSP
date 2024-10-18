@@ -32,7 +32,6 @@ def greedy(cities):
         total_distance += shortest_distance
         current_city = nearest_city
     
-    total_distance += score(cities, [current_city, 0])
     path.append(0)
     
     return path, total_distance
@@ -101,8 +100,8 @@ def graph_all(dataset_paths, times, distances, paths):
         graph(cities, path, distance, dataset, start=0)
 
 if __name__ == '__main__':
-    vertices = [10, 30, 50, 100, 120]
-    dataset_paths = ['10_tiny_null.csv', '30_small_null.csv', '50_medium_null.csv', '100_medium_null.csv','120_large_null.csv'] 
+    vertices = [3, 10, 30, 50, 100, 120]
+    dataset_paths = ['3_tiny_null.csv', '10_tiny_null.csv', '30_small_null.csv', '50_medium_null.csv', '100_medium_null.csv','120_large_null.csv'] 
     times, distances, paths = test_and_time(dataset_paths, vertices)
 
     # graph the actual outputs
